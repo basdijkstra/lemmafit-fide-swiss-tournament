@@ -1,0 +1,510 @@
+{
+  "model": "Model",
+  "actions": [
+    {
+      "name": "AddParticipant",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "RemoveLastParticipant",
+      "fields": []
+    },
+    {
+      "name": "SetRounds",
+      "fields": [
+        {
+          "name": "n",
+          "type": "nat"
+        }
+      ]
+    },
+    {
+      "name": "StartTournament",
+      "fields": []
+    },
+    {
+      "name": "SubmitPairings",
+      "fields": [
+        {
+          "name": "pairings",
+          "type": "seq<Pairing>"
+        },
+        {
+          "name": "bye",
+          "type": "Option<nat>"
+        }
+      ]
+    },
+    {
+      "name": "RecordResult",
+      "fields": [
+        {
+          "name": "pairingIdx",
+          "type": "nat"
+        },
+        {
+          "name": "result",
+          "type": "GameResult"
+        }
+      ]
+    },
+    {
+      "name": "FinalizeRound",
+      "fields": []
+    }
+  ],
+  "datatypes": [
+    {
+      "name": "Option",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "None",
+          "fields": []
+        },
+        {
+          "name": "Some",
+          "fields": [
+            {
+              "name": "value",
+              "type": "T"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Color",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "White",
+          "fields": []
+        },
+        {
+          "name": "Black",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "Phase",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "Setup",
+          "fields": []
+        },
+        {
+          "name": "Playing",
+          "fields": []
+        },
+        {
+          "name": "Finished",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "GameResult",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "WhiteWins",
+          "fields": []
+        },
+        {
+          "name": "BlackWins",
+          "fields": []
+        },
+        {
+          "name": "Draw",
+          "fields": []
+        }
+      ]
+    },
+    {
+      "name": "Pairing",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "Pairing",
+          "fields": [
+            {
+              "name": "whiteIdx",
+              "type": "nat"
+            },
+            {
+              "name": "blackIdx",
+              "type": "nat"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CompletedRound",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "CompletedRound",
+          "fields": [
+            {
+              "name": "pairings",
+              "type": "seq<Pairing>"
+            },
+            {
+              "name": "bye",
+              "type": "Option<nat>"
+            },
+            {
+              "name": "results",
+              "type": "seq<GameResult>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ActiveRound",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "ActiveRound",
+          "fields": [
+            {
+              "name": "pairings",
+              "type": "seq<Pairing>"
+            },
+            {
+              "name": "bye",
+              "type": "Option<nat>"
+            },
+            {
+              "name": "results",
+              "type": "seq<Option<GameResult>>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Participant",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "Participant",
+          "fields": [
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "score2x",
+              "type": "nat"
+            },
+            {
+              "name": "whiteCount",
+              "type": "nat"
+            },
+            {
+              "name": "blackCount",
+              "type": "nat"
+            },
+            {
+              "name": "colorHistory",
+              "type": "seq<Color>"
+            },
+            {
+              "name": "byeReceived",
+              "type": "bool"
+            },
+            {
+              "name": "opponents",
+              "type": "set<nat>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Model",
+      "module": "SwissDomain",
+      "constructors": [
+        {
+          "name": "Model",
+          "fields": [
+            {
+              "name": "phase",
+              "type": "Phase"
+            },
+            {
+              "name": "participants",
+              "type": "seq<Participant>"
+            },
+            {
+              "name": "totalRounds",
+              "type": "nat"
+            },
+            {
+              "name": "completedRounds",
+              "type": "seq<CompletedRound>"
+            },
+            {
+              "name": "activeRound",
+              "type": "Option<ActiveRound>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "module": "SwissKernel",
+      "constructors": [
+        {
+          "name": "History",
+          "fields": [
+            {
+              "name": "past",
+              "type": "seq<Model>"
+            },
+            {
+              "name": "present",
+              "type": "Model"
+            },
+            {
+              "name": "future",
+              "type": "seq<Model>"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "invariant": {
+    "name": "Inv",
+    "conjuncts": []
+  },
+  "appCoreFunctions": [
+    {
+      "name": "Init",
+      "params": [],
+      "returnType": "History"
+    },
+    {
+      "name": "Dispatch",
+      "params": [
+        {
+          "name": "h",
+          "type": "History"
+        },
+        {
+          "name": "a",
+          "type": "Action"
+        }
+      ],
+      "returnType": "History"
+    },
+    {
+      "name": "Undo",
+      "params": [
+        {
+          "name": "h",
+          "type": "History"
+        }
+      ],
+      "returnType": "History"
+    },
+    {
+      "name": "Redo",
+      "params": [
+        {
+          "name": "h",
+          "type": "History"
+        }
+      ],
+      "returnType": "History"
+    },
+    {
+      "name": "Present",
+      "params": [
+        {
+          "name": "h",
+          "type": "History"
+        }
+      ],
+      "returnType": "Model"
+    },
+    {
+      "name": "CanUndo",
+      "params": [
+        {
+          "name": "h",
+          "type": "History"
+        }
+      ],
+      "returnType": "bool"
+    },
+    {
+      "name": "CanRedo",
+      "params": [
+        {
+          "name": "h",
+          "type": "History"
+        }
+      ],
+      "returnType": "bool"
+    },
+    {
+      "name": "AddParticipant",
+      "params": [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ],
+      "returnType": "Action"
+    },
+    {
+      "name": "RemoveLastParticipant",
+      "params": [],
+      "returnType": "Action"
+    },
+    {
+      "name": "SetRounds",
+      "params": [
+        {
+          "name": "n",
+          "type": "nat"
+        }
+      ],
+      "returnType": "Action"
+    },
+    {
+      "name": "StartTournament",
+      "params": [],
+      "returnType": "Action"
+    },
+    {
+      "name": "SubmitPairings",
+      "params": [
+        {
+          "name": "pairings",
+          "type": "seq<Pairing>"
+        },
+        {
+          "name": "bye",
+          "type": "Option<nat>"
+        }
+      ],
+      "returnType": "Action"
+    },
+    {
+      "name": "RecordResult",
+      "params": [
+        {
+          "name": "pairingIdx",
+          "type": "nat"
+        },
+        {
+          "name": "result",
+          "type": "GameResult"
+        }
+      ],
+      "returnType": "Action"
+    },
+    {
+      "name": "FinalizeRound",
+      "params": [],
+      "returnType": "Action"
+    },
+    {
+      "name": "ValidPairings",
+      "params": [
+        {
+          "name": "model",
+          "type": "Model"
+        },
+        {
+          "name": "pairings",
+          "type": "seq<Pairing>"
+        },
+        {
+          "name": "bye",
+          "type": "Option<nat>"
+        }
+      ],
+      "returnType": "bool"
+    },
+    {
+      "name": "ChooseColors",
+      "params": [
+        {
+          "name": "p1idx",
+          "type": "nat"
+        },
+        {
+          "name": "p2idx",
+          "type": "nat"
+        },
+        {
+          "name": "p1",
+          "type": "Participant"
+        },
+        {
+          "name": "p2",
+          "type": "Participant"
+        }
+      ],
+      "returnType": "Pairing"
+    },
+    {
+      "name": "CanStart",
+      "params": [
+        {
+          "name": "model",
+          "type": "Model"
+        }
+      ],
+      "returnType": "bool"
+    },
+    {
+      "name": "CanSubmitPairings",
+      "params": [
+        {
+          "name": "model",
+          "type": "Model"
+        }
+      ],
+      "returnType": "bool"
+    },
+    {
+      "name": "CanFinalize",
+      "params": [
+        {
+          "name": "model",
+          "type": "Model"
+        }
+      ],
+      "returnType": "bool"
+    },
+    {
+      "name": "CurrentRound",
+      "params": [
+        {
+          "name": "model",
+          "type": "Model"
+        }
+      ],
+      "returnType": "nat"
+    }
+  ],
+  "hasAppCore": true,
+  "_module": "Domain"
+}

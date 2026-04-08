@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(SPEC.yaml)",
+      "Read(lemmafit/**)",
+      "Read(src/dafny/**)",
+      "Read(node_modules/lemmafit/docs/**)",
+      "Edit(SPEC.yaml)",
+      "Edit(lemmafit/dafny/*.dfy)",
+      "Write(SPEC.yaml)",
+      "Write(lemmafit/dafny/*.dfy)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npx tsc:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemmafit-verify-hook"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemmafit-context-hook"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "lemmafit-session-hook"
+          }
+        ]
+      }
+    ]
+  }
+}

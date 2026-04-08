@@ -1,0 +1,6 @@
+{
+  "entry": "lemmafit/dafny/Domain.dfy",
+  "appCore": "AppCore",
+  "outputName": "Domain",
+  "secret": "lf_sk_1e5d60c214780d9d43979a1749d85696185261f826ac85961583feab5d2990e2"
+}

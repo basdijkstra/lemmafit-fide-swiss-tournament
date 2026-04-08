@@ -1,0 +1,4 @@
+node_modules/
+*~
+lemmafit/.vibe/daemon.sock
+lemmafit/logs/*.log

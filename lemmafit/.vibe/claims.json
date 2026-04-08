@@ -1,0 +1,938 @@
+{
+  "axioms": [],
+  "lemmas": [
+    {
+      "name": "InitSatisfiesInv",
+      "module": "Domain",
+      "requires": [],
+      "ensures": [
+        "Inv(Init())"
+      ],
+      "line": 12
+    },
+    {
+      "name": "StepPreservesInv",
+      "module": "Domain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "Inv(Normalize(Apply(m, a)))"
+      ],
+      "line": 15
+    },
+    {
+      "name": "InitSatisfiesInv",
+      "module": "SwissDomain",
+      "requires": [],
+      "ensures": [
+        "Inv(Init())",
+        "Inv(Init())"
+      ],
+      "line": 222
+    },
+    {
+      "name": "UpdateStatsPreservesScoreNonNeg",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "p.score2x >= 0"
+      ],
+      "ensures": [
+        "UpdateStats(p, idx, pairings, bye, results).score2x >= 0"
+      ],
+      "line": 387
+    },
+    {
+      "name": "UpdateStatsPairingsScoreNonNeg",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings| && |results| == |pairings| && p.score2x >= 0"
+      ],
+      "ensures": [
+        "UpdateStatsFromPairings(p, idx, pairings, results, i).score2x >= 0"
+      ],
+      "line": 397
+    },
+    {
+      "name": "UpdateStatsPreservesColorLen",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "|p.colorHistory| == p.whiteCount + p.blackCount"
+      ],
+      "ensures": [
+        "ghost var np: Participant := UpdateStats(p, idx, pairings, bye, results); |np.colorHistory| == np.whiteCount + np.blackCount"
+      ],
+      "line": 410
+    },
+    {
+      "name": "UpdateStatsPairingsColorLen",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings| && |results| == |pairings|",
+        "|p.colorHistory| == p.whiteCount + p.blackCount"
+      ],
+      "ensures": [
+        "ghost var np: Participant := UpdateStatsFromPairings(p, idx, pairings, results, i); |np.colorHistory| == np.whiteCount + np.blackCount"
+      ],
+      "line": 422
+    },
+    {
+      "name": "AllStatsPreservesScores",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "forall i: int {:trigger participants[i]} :: 0 <= i < |participants| ==> participants[i].score2x >= 0"
+      ],
+      "ensures": [
+        "ghost var withStats: seq<Participant> := seq(|participants|, (i: int) requires 0 <= i < |participants| => UpdateStats(participants[i], i, pairings, bye, results)); forall i: int {:trigger withStats[i]} :: 0 <= i < |withStats| ==> withStats[i].score2x >= 0"
+      ],
+      "line": 438
+    },
+    {
+      "name": "AllStatsPreservesColorLen",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "ColorHistoryConsistency(participants)"
+      ],
+      "ensures": [
+        "ghost var withStats: seq<Participant> := seq(|participants|, (i: int) requires 0 <= i < |participants| => UpdateStats(participants[i], i, pairings, bye, results)); ColorHistoryConsistency(withStats)"
+      ],
+      "line": 454
+    },
+    {
+      "name": "AddPairingOpponentsPreservesSymmetry",
+      "module": "SwissDomain",
+      "requires": [
+        "w < |participants| && b < |participants| && w != b",
+        "OpponentsSymmetric(participants)"
+      ],
+      "ensures": [
+        "OpponentsSymmetric(AddPairingOpponents(participants, w, b))"
+      ],
+      "line": 470
+    },
+    {
+      "name": "AddAllOpponentsPreservesSymmetry",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "PairingsDistinct(pairings)",
+        "OpponentsSymmetric(participants)"
+      ],
+      "ensures": [
+        "OpponentsSymmetric(AddAllOpponents(participants, pairings, i))"
+      ],
+      "line": 514
+    },
+    {
+      "name": "AllStatsPreservesSymmetry",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "OpponentsSymmetric(participants)"
+      ],
+      "ensures": [
+        "ghost var withStats: seq<Participant> := seq(|participants|, (i: int) requires 0 <= i < |participants| => UpdateStats(participants[i], i, pairings, bye, results)); OpponentsSymmetric(withStats)"
+      ],
+      "line": 538
+    },
+    {
+      "name": "UpdateAllPreservesSymmetry",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "PairingsDistinct(pairings)",
+        "OpponentsSymmetric(participants)"
+      ],
+      "ensures": [
+        "OpponentsSymmetric(UpdateAllParticipants(participants, pairings, bye, results))"
+      ],
+      "line": 561
+    },
+    {
+      "name": "UpdateAllPreservesScores",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "forall i: int {:trigger participants[i]} :: 0 <= i < |participants| ==> participants[i].score2x >= 0"
+      ],
+      "ensures": [
+        "ghost var np: seq<Participant> := UpdateAllParticipants(participants, pairings, bye, results); forall i: int {:trigger np[i]} :: 0 <= i < |np| ==> np[i].score2x >= 0"
+      ],
+      "line": 583
+    },
+    {
+      "name": "AddAllOpponentsPreservesScores",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "forall k: int {:trigger participants[k]} :: 0 <= k < |participants| ==> participants[k].score2x >= 0"
+      ],
+      "ensures": [
+        "ghost var np: seq<Participant> := AddAllOpponents(participants, pairings, i); forall k: int {:trigger np[k]} :: 0 <= k < |np| ==> np[k].score2x >= 0"
+      ],
+      "line": 603
+    },
+    {
+      "name": "UpdateAllPreservesColorLen",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "ColorHistoryConsistency(participants)"
+      ],
+      "ensures": [
+        "ColorHistoryConsistency(UpdateAllParticipants(participants, pairings, bye, results))"
+      ],
+      "line": 626
+    },
+    {
+      "name": "AddAllOpponentsPreservesColorLen",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "ColorHistoryConsistency(participants)"
+      ],
+      "ensures": [
+        "ColorHistoryConsistency(AddAllOpponents(participants, pairings, i))"
+      ],
+      "line": 644
+    },
+    {
+      "name": "AddParticipantPreservesOpponents",
+      "module": "SwissDomain",
+      "requires": [
+        "OpponentsSymmetric(participants)",
+        "OpponentsValid(participants)"
+      ],
+      "ensures": [
+        "ghost var p: Participant := Participant(name, 0, 0, 0, [], false, {}); ghost var ps: seq<Participant> := participants + [p]; OpponentsSymmetric(ps) && OpponentsValid(ps)"
+      ],
+      "line": 668
+    },
+    {
+      "name": "AddAllOpponentsPreservesValid",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "OpponentsValid(participants)"
+      ],
+      "ensures": [
+        "OpponentsValid(AddAllOpponents(participants, pairings, i))"
+      ],
+      "line": 717
+    },
+    {
+      "name": "UpdateAllPreservesOpponentsValid",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "ValidIndices(pairings, |participants|)",
+        "OpponentsValid(participants)"
+      ],
+      "ensures": [
+        "OpponentsValid(UpdateAllParticipants(participants, pairings, bye, results))"
+      ],
+      "line": 754
+    },
+    {
+      "name": "StepPreservesInv",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "Inv(Normalize(Apply(m, a)))",
+        "Inv(Normalize(Apply(m, a)))"
+      ],
+      "line": 781
+    },
+    {
+      "name": "NoRematchesWhenValid",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)"
+      ],
+      "ensures": [
+        "NoRematchPairings(m.participants, pairings)"
+      ],
+      "line": 868
+    },
+    {
+      "name": "PairingsDistinctWhenValid",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)"
+      ],
+      "ensures": [
+        "PairingsDistinct(pairings)"
+      ],
+      "line": 874
+    },
+    {
+      "name": "ByeIffOddWhenValid",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)"
+      ],
+      "ensures": [
+        "bye.Some? <==> |m.participants| % 2 == 1"
+      ],
+      "line": 880
+    },
+    {
+      "name": "ByeRecipientEligibleWhenValid",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)",
+        "bye.Some?"
+      ],
+      "ensures": [
+        "!m.participants[bye.value].byeReceived"
+      ],
+      "line": 886
+    },
+    {
+      "name": "FullCoverageWhenValid",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)"
+      ],
+      "ensures": [
+        "2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants|"
+      ],
+      "line": 893
+    },
+    {
+      "name": "ChooseColorsPreservesColorDiff",
+      "module": "SwissDomain",
+      "requires": [
+        "p1idx != p2idx",
+        "-2 <= ColorDiff(p1) <= 2",
+        "-2 <= ColorDiff(p2) <= 2",
+        "!(MustPlayBlack(p1) && MustPlayBlack(p2))",
+        "!(MustPlayWhite(p1) && MustPlayWhite(p2))",
+        "!(MustPlayBlack(p1) && MustPlayWhite(p1))",
+        "!(MustPlayBlack(p2) && MustPlayWhite(p2))"
+      ],
+      "ensures": [
+        "ghost var pair: Pairing := ChooseColors(p1idx, p2idx, p1, p2); ghost var c1: Color := if pair.whiteIdx == p1idx then White else Black; ghost var c2: Color := if pair.whiteIdx == p2idx then White else Black; -2 <= ColorDiff(p1) + (if c1 == White then 1 else -1) <= 2 && -2 <= ColorDiff(p2) + (if c2 == White then 1 else -1) <= 2"
+      ],
+      "line": 901
+    },
+    {
+      "name": "ColorAlternationPreservesNoThree",
+      "module": "SwissDomain",
+      "requires": [
+        "NoThreeConsecutive(history)",
+        "|history| < 2 || !(history[|history| - 1] == c && history[|history| - 2] == c)"
+      ],
+      "ensures": [
+        "NoThreeConsecutive(history + [c])"
+      ],
+      "line": 976
+    },
+    {
+      "name": "InitSatisfiesInv",
+      "module": "Kernel.D.Abs",
+      "requires": [],
+      "ensures": [
+        "Inv(Init())"
+      ],
+      "line": 12
+    },
+    {
+      "name": "StepPreservesInv",
+      "module": "Kernel.D.Abs",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "Inv(Normalize(Apply(m, a)))"
+      ],
+      "line": 15
+    },
+    {
+      "name": "DoPreservesInv",
+      "module": "Kernel",
+      "requires": [
+        "D.Inv(h.present)"
+      ],
+      "ensures": [
+        "D.Inv(Do(h, a).present)"
+      ],
+      "line": 67
+    },
+    {
+      "name": "InitHistorySatisfiesInv",
+      "module": "Kernel",
+      "requires": [],
+      "ensures": [
+        "HistInv(InitHistory())"
+      ],
+      "line": 80
+    },
+    {
+      "name": "UndoPreservesHistInv",
+      "module": "Kernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Undo(h))"
+      ],
+      "line": 86
+    },
+    {
+      "name": "RedoPreservesHistInv",
+      "module": "Kernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Redo(h))"
+      ],
+      "line": 92
+    },
+    {
+      "name": "DoPreservesHistInv",
+      "module": "Kernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Do(h, a))"
+      ],
+      "line": 98
+    },
+    {
+      "name": "PreviewPreservesHistInv",
+      "module": "Kernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Preview(h, a))"
+      ],
+      "line": 105
+    },
+    {
+      "name": "CommitFromPreservesHistInv",
+      "module": "Kernel",
+      "requires": [
+        "HistInv(h)",
+        "D.Inv(baseline)"
+      ],
+      "ensures": [
+        "HistInv(CommitFrom(h, baseline))"
+      ],
+      "line": 112
+    },
+    {
+      "name": "DoHasNoRedoBranch",
+      "module": "Kernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "Redo(Do(h, a)) == Do(h, a)"
+      ],
+      "line": 120
+    },
+    {
+      "name": "UndoRedoRoundTrip",
+      "module": "Kernel",
+      "requires": [
+        "|h.past| > 0"
+      ],
+      "ensures": [
+        "Redo(Undo(h)) == h"
+      ],
+      "line": 126
+    },
+    {
+      "name": "RedoUndoRoundTrip",
+      "module": "Kernel",
+      "requires": [
+        "|h.future| > 0"
+      ],
+      "ensures": [
+        "Undo(Redo(h)) == h"
+      ],
+      "line": 131
+    },
+    {
+      "name": "UndoAtBeginningIsNoOp",
+      "module": "Kernel",
+      "requires": [
+        "|h.past| == 0"
+      ],
+      "ensures": [
+        "Undo(h) == h"
+      ],
+      "line": 137
+    },
+    {
+      "name": "RedoAtEndIsNoOp",
+      "module": "Kernel",
+      "requires": [
+        "|h.future| == 0"
+      ],
+      "ensures": [
+        "Redo(h) == h"
+      ],
+      "line": 142
+    },
+    {
+      "name": "DoPreservesInv",
+      "module": "SwissKernel",
+      "requires": [
+        "D.Inv(h.present)"
+      ],
+      "ensures": [
+        "D.Inv(Do(h, a).present)"
+      ],
+      "line": 67
+    },
+    {
+      "name": "InitHistorySatisfiesInv",
+      "module": "SwissKernel",
+      "requires": [],
+      "ensures": [
+        "HistInv(InitHistory())"
+      ],
+      "line": 80
+    },
+    {
+      "name": "UndoPreservesHistInv",
+      "module": "SwissKernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Undo(h))"
+      ],
+      "line": 86
+    },
+    {
+      "name": "RedoPreservesHistInv",
+      "module": "SwissKernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Redo(h))"
+      ],
+      "line": 92
+    },
+    {
+      "name": "DoPreservesHistInv",
+      "module": "SwissKernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Do(h, a))"
+      ],
+      "line": 98
+    },
+    {
+      "name": "PreviewPreservesHistInv",
+      "module": "SwissKernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "HistInv(Preview(h, a))"
+      ],
+      "line": 105
+    },
+    {
+      "name": "CommitFromPreservesHistInv",
+      "module": "SwissKernel",
+      "requires": [
+        "HistInv(h)",
+        "D.Inv(baseline)"
+      ],
+      "ensures": [
+        "HistInv(CommitFrom(h, baseline))"
+      ],
+      "line": 112
+    },
+    {
+      "name": "DoHasNoRedoBranch",
+      "module": "SwissKernel",
+      "requires": [
+        "HistInv(h)"
+      ],
+      "ensures": [
+        "Redo(Do(h, a)) == Do(h, a)"
+      ],
+      "line": 120
+    },
+    {
+      "name": "UndoRedoRoundTrip",
+      "module": "SwissKernel",
+      "requires": [
+        "|h.past| > 0"
+      ],
+      "ensures": [
+        "Redo(Undo(h)) == h"
+      ],
+      "line": 126
+    },
+    {
+      "name": "RedoUndoRoundTrip",
+      "module": "SwissKernel",
+      "requires": [
+        "|h.future| > 0"
+      ],
+      "ensures": [
+        "Undo(Redo(h)) == h"
+      ],
+      "line": 131
+    },
+    {
+      "name": "UndoAtBeginningIsNoOp",
+      "module": "SwissKernel",
+      "requires": [
+        "|h.past| == 0"
+      ],
+      "ensures": [
+        "Undo(h) == h"
+      ],
+      "line": 137
+    },
+    {
+      "name": "RedoAtEndIsNoOp",
+      "module": "SwissKernel",
+      "requires": [
+        "|h.future| == 0"
+      ],
+      "ensures": [
+        "Redo(h) == h"
+      ],
+      "line": 142
+    }
+  ],
+  "predicates": [
+    {
+      "name": "Inv",
+      "module": "Domain",
+      "line": 5,
+      "isGhost": true
+    },
+    {
+      "name": "NoThreeConsecutive",
+      "module": "SwissDomain",
+      "body": "forall i: int, _t#0: int, _t#1: int {:trigger history[_t#1], history[_t#0], history[i]} | _t#1 == i - 2 && _t#0 == i - 1 :: 2 <= i && i < |history| ==> !(history[i] == history[_t#0] && history[_t#0] == history[_t#1])",
+      "conjuncts": [
+        "forall i: int, _t#0: int, _t#1: int {:trigger history[_t#1], history[_t#0], history[i]} | _t#1 == i - 2 && _t#0 == i - 1 :: 2 <= i && i < |history| ==> !(history[i] == history[_t#0] && history[_t#0] == history[_t#1])"
+      ],
+      "line": 144,
+      "isGhost": true
+    },
+    {
+      "name": "OpponentsSymmetric",
+      "module": "SwissDomain",
+      "body": "forall i: int, j: int {:trigger participants[j], participants[i]} :: 0 <= i < |participants| && 0 <= j < |participants| && i != j ==> (j in participants[i].opponents) == (i in participants[j].opponents)",
+      "conjuncts": [
+        "forall i: int, j: int {:trigger participants[j], participants[i]} :: 0 <= i < |participants| && 0 <= j < |participants| && i != j ==> (j in participants[i].opponents) == (i in participants[j].opponents)"
+      ],
+      "line": 149,
+      "isGhost": true
+    },
+    {
+      "name": "ValidIndices",
+      "module": "SwissDomain",
+      "body": "forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in pairings} :: (p in pairings ==> p.whiteIdx < n) && (p in pairings ==> p.blackIdx < n) && (p in pairings ==> p.whiteIdx != p.blackIdx)",
+      "conjuncts": [
+        "forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in pairings} :: (p in pairings ==> p.whiteIdx < n) && (p in pairings ==> p.blackIdx < n) && (p in pairings ==> p.whiteIdx != p.blackIdx)"
+      ],
+      "line": 154,
+      "isGhost": true
+    },
+    {
+      "name": "PairingsDistinct",
+      "module": "SwissDomain",
+      "body": "forall i: int, j: int {:trigger pairings[j], pairings[i]} :: (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].blackIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].blackIdx)",
+      "conjuncts": [
+        "forall i: int, j: int {:trigger pairings[j], pairings[i]} :: (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].blackIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].blackIdx)"
+      ],
+      "line": 159,
+      "isGhost": true
+    },
+    {
+      "name": "NoRematchPairings",
+      "module": "SwissDomain",
+      "body": "forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in pairings} :: (p in pairings ==> p.whiteIdx < |participants|) && (p in pairings ==> p.blackIdx < |participants|) && (p in pairings ==> !(p.blackIdx in participants[p.whiteIdx].opponents)) && (p in pairings ==> !(p.whiteIdx in participants[p.blackIdx].opponents))",
+      "conjuncts": [
+        "forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in pairings} :: (p in pairings ==> p.whiteIdx < |participants|) && (p in pairings ==> p.blackIdx < |participants|) && (p in pairings ==> !(p.blackIdx in participants[p.whiteIdx].opponents)) && (p in pairings ==> !(p.whiteIdx in participants[p.blackIdx].opponents))"
+      ],
+      "line": 167,
+      "isGhost": true
+    },
+    {
+      "name": "ColorHistoryConsistency",
+      "module": "SwissDomain",
+      "body": "forall i: int {:trigger participants[i]} :: 0 <= i < |participants| ==> |participants[i].colorHistory| == participants[i].whiteCount + participants[i].blackCount",
+      "conjuncts": [
+        "forall i: int {:trigger participants[i]} :: 0 <= i < |participants| ==> |participants[i].colorHistory| == participants[i].whiteCount + participants[i].blackCount"
+      ],
+      "line": 174,
+      "isGhost": true
+    },
+    {
+      "name": "OpponentsValid",
+      "module": "SwissDomain",
+      "body": "forall i: int {:trigger participants[i]} :: 0 <= i < |participants| ==> forall j: int {:trigger j in participants[i].opponents} :: j in participants[i].opponents ==> j < |participants|",
+      "conjuncts": [
+        "forall i: int {:trigger participants[i]} :: 0 <= i < |participants| ==> forall j: int {:trigger j in participants[i].opponents} :: j in participants[i].opponents ==> j < |participants|"
+      ],
+      "line": 180,
+      "isGhost": true
+    },
+    {
+      "name": "ActiveRoundValid",
+      "module": "SwissDomain",
+      "body": "m.activeRound.Some? ==> ghost var r: ActiveRound := m.activeRound.value; |r.results| == |r.pairings| && ValidIndices(r.pairings, |m.participants|) && PairingsDistinct(r.pairings) && (r.bye.Some? ==> r.bye.value < |m.participants| && !m.participants[r.bye.value].byeReceived && forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in r.pairings} :: (p in r.pairings ==> p.whiteIdx != r.bye.value) && (p in r.pairings ==> p.blackIdx != r.bye.value)) && NoRematchPairings(m.participants, r.pairings)",
+      "conjuncts": [
+        "m.activeRound.Some? ==> ghost var r: ActiveRound := m.activeRound.value; |r.results| == |r.pairings| && ValidIndices(r.pairings, |m.participants|) && PairingsDistinct(r.pairings) && (r.bye.Some? ==> r.bye.value < |m.participants| && !m.participants[r.bye.value].byeReceived && forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in r.pairings} :: (p in r.pairings ==> p.whiteIdx != r.bye.value) && (p in r.pairings ==> p.blackIdx != r.bye.value)) && NoRematchPairings(m.participants, r.pairings)"
+      ],
+      "line": 185,
+      "isGhost": true
+    },
+    {
+      "name": "Inv",
+      "module": "SwissDomain",
+      "body": "(forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0) && (m.phase != Setup ==> m.totalRounds >= 1 && 2 <= |m.participants| <= 19) && (m.phase == Setup ==> m.completedRounds == [] && m.activeRound == None && forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> m.participants[i].opponents == {}) && (m.phase == Playing ==> m.activeRound.Some?) && (m.phase == Finished ==> |m.completedRounds| == m.totalRounds && m.activeRound == None) && CurrentRound(m) <= m.totalRounds && OpponentsSymmetric(m.participants) && OpponentsValid(m.participants) && ColorHistoryConsistency(m.participants) && ActiveRoundValid(m)",
+      "conjuncts": [
+        "forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0",
+        "m.phase != Setup ==> m.totalRounds >= 1 && 2 <= |m.participants| <= 19",
+        "m.phase == Setup ==> m.completedRounds == [] && m.activeRound == None && forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> m.participants[i].opponents == {}",
+        "m.phase == Playing ==> m.activeRound.Some?",
+        "m.phase == Finished ==> |m.completedRounds| == m.totalRounds && m.activeRound == None",
+        "CurrentRound(m) <= m.totalRounds",
+        "OpponentsSymmetric(m.participants)",
+        "OpponentsValid(m.participants)",
+        "ColorHistoryConsistency(m.participants)",
+        "ActiveRoundValid(m)"
+      ],
+      "line": 201,
+      "isGhost": true
+    },
+    {
+      "name": "Inv",
+      "module": "Kernel.D.Abs",
+      "line": 5,
+      "isGhost": true
+    },
+    {
+      "name": "HistInv",
+      "module": "Kernel",
+      "body": "(forall i: int {:trigger h.past[i]} | 0 <= i < |h.past| :: _default.Inv(h.past[i])) && D.Inv(h.present) && forall j: int {:trigger h.future[j]} | 0 <= j < |h.future| :: _default.Inv(h.future[j])",
+      "conjuncts": [
+        "forall i: int {:trigger h.past[i]} | 0 <= i < |h.past| :: _default.Inv(h.past[i])",
+        "D.Inv(h.present)",
+        "forall j: int {:trigger h.future[j]} | 0 <= j < |h.future| :: _default.Inv(h.future[j])"
+      ],
+      "line": 74,
+      "isGhost": true
+    },
+    {
+      "name": "HistInv",
+      "module": "SwissKernel",
+      "body": "(forall i: int {:trigger h.past[i]} | 0 <= i < |h.past| :: _default.Inv(h.past[i])) && D.Inv(h.present) && forall j: int {:trigger h.future[j]} | 0 <= j < |h.future| :: _default.Inv(h.future[j])",
+      "conjuncts": [
+        "forall i: int {:trigger h.past[i]} | 0 <= i < |h.past| :: _default.Inv(h.past[i])",
+        "D.Inv(h.present)",
+        "forall j: int {:trigger h.future[j]} | 0 <= j < |h.future| :: _default.Inv(h.future[j])"
+      ],
+      "line": 74,
+      "isGhost": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "Apply",
+      "module": "Domain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [],
+      "line": 8
+    },
+    {
+      "name": "ChooseColors",
+      "module": "SwissDomain",
+      "requires": [],
+      "ensures": [
+        "var pair: Pairing := ChooseColors(p1idx, p2idx, p1, p2); pair == Pairing(p1idx, p2idx) || pair == Pairing(p2idx, p1idx)"
+      ],
+      "line": 94
+    },
+    {
+      "name": "ExtractResults",
+      "module": "SwissDomain",
+      "requires": [
+        "forall i: int {:trigger results[i]} :: 0 <= i < |results| ==> results[i].Some?"
+      ],
+      "ensures": [
+        "|ExtractResults(results)| == |results|",
+        "forall i: int {:trigger results[i]} {:trigger ExtractResults(results)[i]} :: 0 <= i < |results| ==> ExtractResults(results)[i] == results[i].value"
+      ],
+      "line": 230
+    },
+    {
+      "name": "UpdateStats",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|"
+      ],
+      "ensures": [
+        "UpdateStats(p, idx, pairings, bye, results).opponents == p.opponents"
+      ],
+      "line": 240
+    },
+    {
+      "name": "UpdateStatsFromPairings",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings| && |results| == |pairings|"
+      ],
+      "ensures": [
+        "UpdateStatsFromPairings(p, idx, pairings, results, i).opponents == p.opponents"
+      ],
+      "line": 250
+    },
+    {
+      "name": "AddPairingOpponents",
+      "module": "SwissDomain",
+      "requires": [
+        "w < |participants| && b < |participants| && w != b"
+      ],
+      "ensures": [
+        "|AddPairingOpponents(participants, w, b)| == |participants|",
+        "forall k: int {:trigger participants[k]} {:trigger AddPairingOpponents(participants, w, b)[k]} :: 0 <= k < |participants| && k != w && k != b ==> AddPairingOpponents(participants, w, b)[k] == participants[k]",
+        "AddPairingOpponents(participants, w, b)[w].opponents == participants[w].opponents + {b}",
+        "AddPairingOpponents(participants, w, b)[b].opponents == participants[b].opponents + {w}",
+        "forall k: int {:trigger participants[k]} {:trigger AddPairingOpponents(participants, w, b)[k]} :: 0 <= k < |participants| && k != w && k != b ==> AddPairingOpponents(participants, w, b)[k].opponents == participants[k].opponents"
+      ],
+      "line": 269
+    },
+    {
+      "name": "AddAllOpponents",
+      "module": "SwissDomain",
+      "requires": [
+        "i <= |pairings|",
+        "ValidIndices(pairings, |participants|)"
+      ],
+      "ensures": [
+        "|AddAllOpponents(participants, pairings, i)| == |participants|"
+      ],
+      "line": 285
+    },
+    {
+      "name": "UpdateAllParticipants",
+      "module": "SwissDomain",
+      "requires": [
+        "|results| == |pairings|",
+        "ValidIndices(pairings, |participants|)"
+      ],
+      "ensures": [
+        "|UpdateAllParticipants(participants, pairings, bye, results)| == |participants|"
+      ],
+      "line": 303
+    },
+    {
+      "name": "Apply",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [],
+      "line": 320
+    },
+    {
+      "name": "Apply",
+      "module": "Kernel.D.Abs",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [],
+      "line": 8
+    },
+    {
+      "name": "Step",
+      "module": "Kernel",
+      "requires": [
+        "D.Inv(m)"
+      ],
+      "ensures": [],
+      "line": 23
+    },
+    {
+      "name": "Do",
+      "module": "Kernel",
+      "requires": [
+        "D.Inv(h.present)"
+      ],
+      "ensures": [],
+      "line": 36
+    },
+    {
+      "name": "Preview",
+      "module": "Kernel",
+      "requires": [
+        "D.Inv(h.present)"
+      ],
+      "ensures": [],
+      "line": 43
+    },
+    {
+      "name": "Step",
+      "module": "SwissKernel",
+      "requires": [
+        "D.Inv(m)"
+      ],
+      "ensures": [],
+      "line": 23
+    },
+    {
+      "name": "Do",
+      "module": "SwissKernel",
+      "requires": [
+        "D.Inv(h.present)"
+      ],
+      "ensures": [],
+      "line": 36
+    },
+    {
+      "name": "Preview",
+      "module": "SwissKernel",
+      "requires": [
+        "D.Inv(h.present)"
+      ],
+      "ensures": [],
+      "line": 43
+    },
+    {
+      "name": "Dispatch",
+      "module": "AppCore",
+      "requires": [
+        "K.HistInv(h)"
+      ],
+      "ensures": [],
+      "line": 1011
+    }
+  ]
+}
