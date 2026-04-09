@@ -996,6 +996,82 @@ module SwissDomain refines Domain {
       }
     }
   }
+
+  // ===== Guarantee Wrapper Lemmas (for claimcheck) =====
+
+  // spec-001: Participant count is between 2 and 19 when tournament is active or finished
+  lemma Guarantee_ParticipantCount(m: Model)
+    requires Inv(m)
+    ensures m.phase != Setup ==> 2 <= |m.participants| <= 19
+  {}
+
+  // spec-002: Total rounds is at least 1 when tournament is active or finished
+  lemma Guarantee_TotalRoundsMin(m: Model)
+    requires Inv(m)
+    ensures m.phase != Setup ==> m.totalRounds >= 1
+  {}
+
+  // spec-003: Current round count never exceeds total rounds
+  lemma Guarantee_CurrentRoundBound(m: Model)
+    requires Inv(m)
+    ensures CurrentRound(m) <= m.totalRounds
+  {}
+
+  // spec-004: Participants have non-negative scores at all times
+  lemma Guarantee_ScoresNonNegative(m: Model)
+    requires Inv(m)
+    ensures forall i :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0
+  {}
+
+  // spec-005: Opponent tracking is symmetric across all participants
+  lemma Guarantee_OpponentsSymmetric(m: Model)
+    requires Inv(m)
+    ensures OpponentsSymmetric(m.participants)
+  {}
+
+  // spec-010: Active round always has structurally valid pairings and valid participant indices
+  lemma Guarantee_ActiveRoundValid(m: Model)
+    requires Inv(m)
+    ensures ActiveRoundValid(m)
+  {}
+
+  // spec-011: Color history length equals total games played as white plus black
+  lemma Guarantee_ColorHistoryConsistency(m: Model)
+    requires Inv(m)
+    ensures forall i :: 0 <= i < |m.participants| ==>
+      |m.participants[i].colorHistory| == m.participants[i].whiteCount + m.participants[i].blackCount
+  {}
+
+  // spec-007: Each participant appears at most once across all pairings (no participant index is
+  // shared between any two pairings in either the white or black slot)
+  lemma Guarantee_ParticipantAppearsOnce(m: Model, pairings: seq<Pairing>, bye: Option<nat>)
+    requires ValidPairingsForModel(m, pairings, bye)
+    ensures forall i, j :: 0 <= i < j < |pairings| ==>
+      pairings[i].whiteIdx != pairings[j].whiteIdx &&
+      pairings[i].whiteIdx != pairings[j].blackIdx &&
+      pairings[i].blackIdx != pairings[j].whiteIdx &&
+      pairings[i].blackIdx != pairings[j].blackIdx
+  {
+    PairingsDistinctWhenValid(m, pairings, bye);
+  }
+
+  // spec-014: Every participant is covered exactly once — either in a pairing or receiving the bye.
+  // Proven by: count equation + participant-level distinctness across all pairings + bye exclusion.
+  lemma Guarantee_FullCoverage(m: Model, pairings: seq<Pairing>, bye: Option<nat>)
+    requires ValidPairingsForModel(m, pairings, bye)
+    ensures 2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants|
+    ensures forall i, j :: 0 <= i < j < |pairings| ==>
+      pairings[i].whiteIdx != pairings[j].whiteIdx &&
+      pairings[i].whiteIdx != pairings[j].blackIdx &&
+      pairings[i].blackIdx != pairings[j].whiteIdx &&
+      pairings[i].blackIdx != pairings[j].blackIdx
+    ensures bye.Some? ==>
+      bye.value < |m.participants| &&
+      (forall p :: p in pairings ==> p.whiteIdx != bye.value && p.blackIdx != bye.value)
+  {
+    FullCoverageWhenValid(m, pairings, bye);
+    PairingsDistinctWhenValid(m, pairings, bye);
+  }
 }
 
 module SwissKernel refines Kernel {

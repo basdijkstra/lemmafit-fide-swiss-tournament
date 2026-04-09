@@ -16,7 +16,7 @@
   },
   "axioms": [],
   "compiled": true,
-  "lastCompiled": "2026-04-08T11:01:14.068Z",
+  "lastCompiled": "2026-04-09T06:18:18.840Z",
   "specContent": "entries:\n  - id: spec-001\n    req_id: null\n    title: Participant count is between 2 and 19 when tournament is active or finished\n    group: Tournament Setup\n    layer: logic\n    type: invariant\n    property: \"m.phase != Setup ==> 2 <= |m.participants| <= 19\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-002\n    req_id: null\n    title: Total rounds is at least 1 when tournament is active or finished\n    group: Tournament Setup\n    layer: logic\n    type: invariant\n    property: \"m.phase != Setup ==> m.totalRounds >= 1\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-003\n    req_id: null\n    title: Current round count never exceeds total rounds\n    group: Tournament Setup\n    layer: logic\n    type: invariant\n    property: \"CurrentRound(m) <= m.totalRounds\"\n    module: AppCore\n    depends_on: [spec-001, spec-002]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-004\n    req_id: null\n    title: Participants have non-negative scores at all times\n    group: Scoring\n    layer: logic\n    type: invariant\n    property: \"forall i :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-005\n    req_id: null\n    title: Opponent tracking is symmetric across all participants (FIDE Rule 2 foundation)\n    group: Pairing Rules\n    layer: logic\n    type: invariant\n    property: \"OpponentsSymmetric(m.participants)\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-006\n    req_id: null\n    title: Accepted round pairings contain no rematches between participants (FIDE Rule 2)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"ValidPairingsForModel(m, pairings, bye) ==> NoRematchPairings(m.participants, pairings)\"\n    module: AppCore\n    depends_on: [spec-005]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-007\n    req_id: null\n    title: Each participant appears at most once in accepted round pairings (FIDE Rule 3)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"ValidPairingsForModel(m, pairings, bye) ==> PairingsDistinct(pairings)\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-008\n    req_id: null\n    title: A bye is present when and only when the participant count is odd (FIDE Rule 3)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"ValidPairingsForModel(m, pairings, bye) ==> (bye.Some? <==> |m.participants| % 2 == 1)\"\n    module: AppCore\n    depends_on: [spec-001]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-009\n    req_id: null\n    title: Accepted bye recipient has not previously received a pairing-allocated bye (FIDE Rule 4)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"ValidPairingsForModel(m, pairings, bye) && bye.Some? ==> !m.participants[bye.value].byeReceived\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-010\n    req_id: null\n    title: Active round always has structurally valid pairings and valid participant indices\n    group: Pairing Rules\n    layer: logic\n    type: invariant\n    property: \"ActiveRoundValid(m)\"\n    module: AppCore\n    depends_on: [spec-001]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-011\n    req_id: null\n    title: Color history length equals total games played as white plus black for every participant\n    group: Pairing Rules\n    layer: logic\n    type: invariant\n    property: \"forall i :: 0 <= i < |m.participants| ==> |m.participants[i].colorHistory| == m.participants[i].whiteCount + m.participants[i].blackCount\"\n    module: AppCore\n    depends_on: []\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-012\n    req_id: null\n    title: Color difference for every participant stays within minus 2 to 2 (FIDE Rule 6)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"ChooseColorsPreservesColorDiff(p1, p2) ==> -2 <= ColorDiff(ApplyColor(p, c)) <= 2\"\n    module: AppCore\n    depends_on: [spec-011]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-013\n    req_id: null\n    title: No participant receives the same color three times consecutively (FIDE Rule 7)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"NoThreeConsecutive(p.colorHistory) && c != LastColor(p) ==> NoThreeConsecutive(p.colorHistory + [c])\"\n    module: AppCore\n    depends_on: [spec-011]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-014\n    req_id: null\n    title: All accepted pairings cover every participant exactly once (bye or paired)\n    group: Pairing Rules\n    layer: logic\n    type: postcondition\n    property: \"ValidPairingsForModel(m, pairings, bye) ==> 2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants|\"\n    module: AppCore\n    depends_on: [spec-001, spec-007, spec-008]\n    verifiable: true\n    guarantee_type: verified\n    state: ADDRESSED\n\n  - id: spec-015\n    req_id: null\n    title: Tournament setup screen allows entering participant names and number of rounds\n    group: Presentation\n    layer: presentation\n    type: invariant\n    property: \"Setup phase renders a form for participant names and a round count selector\"\n    module: null\n    depends_on: []\n    verifiable: false\n    guarantee_type: trusted\n    state: null\n\n  - id: spec-016\n    req_id: null\n    title: Pairings view shows White vs Black participant names for each game in the active round\n    group: Presentation\n    layer: presentation\n    type: invariant\n    property: \"Active round screen displays each pairing as white-player vs black-player\"\n    module: null\n    depends_on: []\n    verifiable: false\n    guarantee_type: trusted\n    state: null\n\n  - id: spec-017\n    req_id: null\n    title: User can record game results as White wins, Black wins, or Draw for each pairing\n    group: Presentation\n    layer: presentation\n    type: invariant\n    property: \"Result entry UI shows WhiteWins, BlackWins, Draw buttons per pairing\"\n    module: null\n    depends_on: []\n    verifiable: false\n    guarantee_type: trusted\n    state: null\n\n  - id: spec-018\n    req_id: null\n    title: Standings table displays all participants sorted by score descending after each round\n    group: Presentation\n    layer: presentation\n    type: invariant\n    property: \"Standings shows rank, name, and score for all participants in descending score order\"\n    module: null\n    depends_on: []\n    verifiable: false\n    guarantee_type: trusted\n    state: null\n",
   "ackedSpecContent": "entries: []\n",
   "specQueue": [
@@ -25,1526 +25,1526 @@
       "line": 1,
       "type": "added",
       "text": "entries:",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "c330ad45",
       "line": 2,
       "type": "added",
       "text": "  - id: spec-001",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 3,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "d9fc6af0",
       "line": 4,
       "type": "added",
       "text": "    title: Participant count is between 2 and 19 when tournament is active or finished",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8b424030",
       "line": 5,
       "type": "added",
       "text": "    group: Tournament Setup",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 6,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 7,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "eeaf441c",
       "line": 8,
       "type": "added",
       "text": "    property: \"m.phase != Setup ==> 2 <= |m.participants| <= 19\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 9,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 10,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 11,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 12,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 13,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "3a51ac25",
       "line": 15,
       "type": "added",
       "text": "  - id: spec-002",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 16,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0274e303",
       "line": 17,
       "type": "added",
       "text": "    title: Total rounds is at least 1 when tournament is active or finished",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8b424030",
       "line": 18,
       "type": "added",
       "text": "    group: Tournament Setup",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 19,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 20,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "cd558703",
       "line": 21,
       "type": "added",
       "text": "    property: \"m.phase != Setup ==> m.totalRounds >= 1\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 22,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 23,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 24,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 25,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 26,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "cf219d79",
       "line": 28,
       "type": "added",
       "text": "  - id: spec-003",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 29,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "40c2067a",
       "line": 30,
       "type": "added",
       "text": "    title: Current round count never exceeds total rounds",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8b424030",
       "line": 31,
       "type": "added",
       "text": "    group: Tournament Setup",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 32,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 33,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "3508f223",
       "line": 34,
       "type": "added",
       "text": "    property: \"CurrentRound(m) <= m.totalRounds\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 35,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "604b9b07",
       "line": 36,
       "type": "added",
       "text": "    depends_on: [spec-001, spec-002]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 37,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 38,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 39,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "fa3fab42",
       "line": 41,
       "type": "added",
       "text": "  - id: spec-004",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 42,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "08939640",
       "line": 43,
       "type": "added",
       "text": "    title: Participants have non-negative scores at all times",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "f324dc4d",
       "line": 44,
       "type": "added",
       "text": "    group: Scoring",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 45,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 46,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "c5cf27fe",
       "line": 47,
       "type": "added",
       "text": "    property: \"forall i :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 48,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 49,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 50,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 51,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 52,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "fa5f1b8d",
       "line": 54,
       "type": "added",
       "text": "  - id: spec-005",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 55,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ae2b9a4b",
       "line": 56,
       "type": "added",
       "text": "    title: Opponent tracking is symmetric across all participants (FIDE Rule 2 foundation)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 57,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 58,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 59,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a234da70",
       "line": 60,
       "type": "added",
       "text": "    property: \"OpponentsSymmetric(m.participants)\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 61,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 62,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 63,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 64,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 65,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "827ce4a5",
       "line": 67,
       "type": "added",
       "text": "  - id: spec-006",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 68,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "50bc0be1",
       "line": 69,
       "type": "added",
       "text": "    title: Accepted round pairings contain no rematches between participants (FIDE Rule 2)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 70,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 71,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 72,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "3e63a668",
       "line": 73,
       "type": "added",
       "text": "    property: \"ValidPairingsForModel(m, pairings, bye) ==> NoRematchPairings(m.participants, pairings)\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 74,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1df69c08",
       "line": 75,
       "type": "added",
       "text": "    depends_on: [spec-005]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 76,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 77,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 78,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8cd0c77a",
       "line": 80,
       "type": "added",
       "text": "  - id: spec-007",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 81,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "957df461",
       "line": 82,
       "type": "added",
       "text": "    title: Each participant appears at most once in accepted round pairings (FIDE Rule 3)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 83,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 84,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 85,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "7271147d",
       "line": 86,
       "type": "added",
       "text": "    property: \"ValidPairingsForModel(m, pairings, bye) ==> PairingsDistinct(pairings)\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 87,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 88,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 89,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 90,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 91,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "4a5c18f1",
       "line": 93,
       "type": "added",
       "text": "  - id: spec-008",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 94,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ce090b7f",
       "line": 95,
       "type": "added",
       "text": "    title: A bye is present when and only when the participant count is odd (FIDE Rule 3)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 96,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 97,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 98,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2b799dcb",
       "line": 99,
       "type": "added",
       "text": "    property: \"ValidPairingsForModel(m, pairings, bye) ==> (bye.Some? <==> |m.participants| % 2 == 1)\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 100,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "049f0a83",
       "line": 101,
       "type": "added",
       "text": "    depends_on: [spec-001]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 102,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 103,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 104,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "787a356c",
       "line": 106,
       "type": "added",
       "text": "  - id: spec-009",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 107,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "7801b00c",
       "line": 108,
       "type": "added",
       "text": "    title: Accepted bye recipient has not previously received a pairing-allocated bye (FIDE Rule 4)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 109,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 110,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 111,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "4b04078b",
       "line": 112,
       "type": "added",
       "text": "    property: \"ValidPairingsForModel(m, pairings, bye) && bye.Some? ==> !m.participants[bye.value].byeReceived\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 113,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 114,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 115,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 116,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 117,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "90553b10",
       "line": 119,
       "type": "added",
       "text": "  - id: spec-010",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 120,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "4fc8a812",
       "line": 121,
       "type": "added",
       "text": "    title: Active round always has structurally valid pairings and valid participant indices",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 122,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 123,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 124,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "e5cecb06",
       "line": 125,
       "type": "added",
       "text": "    property: \"ActiveRoundValid(m)\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 126,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "049f0a83",
       "line": 127,
       "type": "added",
       "text": "    depends_on: [spec-001]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 128,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 129,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 130,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adc24a8d",
       "line": 132,
       "type": "added",
       "text": "  - id: spec-011",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 133,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "37785e77",
       "line": 134,
       "type": "added",
       "text": "    title: Color history length equals total games played as white plus black for every participant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 135,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 136,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 137,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a43450b0",
       "line": 138,
       "type": "added",
       "text": "    property: \"forall i :: 0 <= i < |m.participants| ==> |m.participants[i].colorHistory| == m.participants[i].whiteCount + m.participants[i].blackCount\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 139,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 140,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 141,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 142,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 143,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1d87cb70",
       "line": 145,
       "type": "added",
       "text": "  - id: spec-012",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 146,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "b8aa896b",
       "line": 147,
       "type": "added",
       "text": "    title: Color difference for every participant stays within minus 2 to 2 (FIDE Rule 6)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 148,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 149,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 150,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0c401b87",
       "line": 151,
       "type": "added",
       "text": "    property: \"ChooseColorsPreservesColorDiff(p1, p2) ==> -2 <= ColorDiff(ApplyColor(p, c)) <= 2\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 152,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "cecfd460",
       "line": 153,
       "type": "added",
       "text": "    depends_on: [spec-011]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 154,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 155,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 156,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "74a768cd",
       "line": 158,
       "type": "added",
       "text": "  - id: spec-013",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 159,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "c7411636",
       "line": 160,
       "type": "added",
       "text": "    title: No participant receives the same color three times consecutively (FIDE Rule 7)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 161,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 162,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 163,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "4bd2c525",
       "line": 164,
       "type": "added",
       "text": "    property: \"NoThreeConsecutive(p.colorHistory) && c != LastColor(p) ==> NoThreeConsecutive(p.colorHistory + [c])\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 165,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "cecfd460",
       "line": 166,
       "type": "added",
       "text": "    depends_on: [spec-011]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 167,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 168,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 169,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "c1af6e1b",
       "line": 171,
       "type": "added",
       "text": "  - id: spec-014",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 172,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "38d06b5f",
       "line": 173,
       "type": "added",
       "text": "    title: All accepted pairings cover every participant exactly once (bye or paired)",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "5531f94c",
       "line": 174,
       "type": "added",
       "text": "    group: Pairing Rules",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "214f19f7",
       "line": 175,
       "type": "added",
       "text": "    layer: logic",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "0da51e93",
       "line": 176,
       "type": "added",
       "text": "    type: postcondition",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "c56779d2",
       "line": 177,
       "type": "added",
       "text": "    property: \"ValidPairingsForModel(m, pairings, bye) ==> 2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants|\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "63483e3c",
       "line": 178,
       "type": "added",
       "text": "    module: AppCore",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "de431400",
       "line": 179,
       "type": "added",
       "text": "    depends_on: [spec-001, spec-007, spec-008]",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "97757e9a",
       "line": 180,
       "type": "added",
       "text": "    verifiable: true",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "adbfcf0c",
       "line": 181,
       "type": "added",
       "text": "    guarantee_type: verified",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "2821f87d",
       "line": 182,
       "type": "added",
       "text": "    state: ADDRESSED",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "272c4288",
       "line": 184,
       "type": "added",
       "text": "  - id: spec-015",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 185,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "dfe5d37a",
       "line": 186,
       "type": "added",
       "text": "    title: Tournament setup screen allows entering participant names and number of rounds",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9fd0dbec",
       "line": 187,
       "type": "added",
       "text": "    group: Presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9f466728",
       "line": 188,
       "type": "added",
       "text": "    layer: presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 189,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "51c26d6e",
       "line": 190,
       "type": "added",
       "text": "    property: \"Setup phase renders a form for participant names and a round count selector\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "6b6507eb",
       "line": 191,
       "type": "added",
       "text": "    module: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 192,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "17122274",
       "line": 193,
       "type": "added",
       "text": "    verifiable: false",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "70887c9f",
       "line": 194,
       "type": "added",
       "text": "    guarantee_type: trusted",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a1054c3a",
       "line": 195,
       "type": "added",
       "text": "    state: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "02c252b3",
       "line": 197,
       "type": "added",
       "text": "  - id: spec-016",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 198,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "cf4841c9",
       "line": 199,
       "type": "added",
       "text": "    title: Pairings view shows White vs Black participant names for each game in the active round",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9fd0dbec",
       "line": 200,
       "type": "added",
       "text": "    group: Presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9f466728",
       "line": 201,
       "type": "added",
       "text": "    layer: presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 202,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "559b6717",
       "line": 203,
       "type": "added",
       "text": "    property: \"Active round screen displays each pairing as white-player vs black-player\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "6b6507eb",
       "line": 204,
       "type": "added",
       "text": "    module: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 205,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "17122274",
       "line": 206,
       "type": "added",
       "text": "    verifiable: false",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "70887c9f",
       "line": 207,
       "type": "added",
       "text": "    guarantee_type: trusted",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a1054c3a",
       "line": 208,
       "type": "added",
       "text": "    state: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "c8c2c343",
       "line": 210,
       "type": "added",
       "text": "  - id: spec-017",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 211,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "11722d01",
       "line": 212,
       "type": "added",
       "text": "    title: User can record game results as White wins, Black wins, or Draw for each pairing",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9fd0dbec",
       "line": 213,
       "type": "added",
       "text": "    group: Presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9f466728",
       "line": 214,
       "type": "added",
       "text": "    layer: presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 215,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "bd1743ea",
       "line": 216,
       "type": "added",
       "text": "    property: \"Result entry UI shows WhiteWins, BlackWins, Draw buttons per pairing\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "6b6507eb",
       "line": 217,
       "type": "added",
       "text": "    module: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 218,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "17122274",
       "line": 219,
       "type": "added",
       "text": "    verifiable: false",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "70887c9f",
       "line": 220,
       "type": "added",
       "text": "    guarantee_type: trusted",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a1054c3a",
       "line": 221,
       "type": "added",
       "text": "    state: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "3b5ecb51",
       "line": 223,
       "type": "added",
       "text": "  - id: spec-018",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "ee5379fa",
       "line": 224,
       "type": "added",
       "text": "    req_id: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "50ccc168",
       "line": 225,
       "type": "added",
       "text": "    title: Standings table displays all participants sorted by score descending after each round",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9fd0dbec",
       "line": 226,
       "type": "added",
       "text": "    group: Presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "9f466728",
       "line": 227,
       "type": "added",
       "text": "    layer: presentation",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "1eb312c1",
       "line": 228,
       "type": "added",
       "text": "    type: invariant",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a8c45cca",
       "line": 229,
       "type": "added",
       "text": "    property: \"Standings shows rank, name, and score for all participants in descending score order\"",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "6b6507eb",
       "line": 230,
       "type": "added",
       "text": "    module: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "8f552a53",
       "line": 231,
       "type": "added",
       "text": "    depends_on: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "17122274",
       "line": 232,
       "type": "added",
       "text": "    verifiable: false",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "70887c9f",
       "line": 233,
       "type": "added",
       "text": "    guarantee_type: trusted",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "a1054c3a",
       "line": 234,
       "type": "added",
       "text": "    state: null",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     },
     {
       "id": "f44de578",
       "type": "removed",
       "text": "entries: []",
-      "verifiedAt": "2026-04-08T11:01:14.125Z"
+      "verifiedAt": "2026-04-09T06:01:35.728Z"
     }
   ],
-  "timestamp": "2026-04-08T11:01:14.125Z"
+  "timestamp": "2026-04-09T06:18:18.841Z"
 }

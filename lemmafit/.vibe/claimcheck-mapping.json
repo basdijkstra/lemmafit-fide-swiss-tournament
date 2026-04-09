@@ -1,0 +1,16 @@
+[
+  { "requirement": "Participant count is between 2 and 19 when tournament is active or finished", "lemmaName": "Guarantee_ParticipantCount", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Total rounds is at least 1 when tournament is active or finished", "lemmaName": "Guarantee_TotalRoundsMin", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Current round count never exceeds total rounds", "lemmaName": "Guarantee_CurrentRoundBound", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Participants have non-negative scores at all times", "lemmaName": "Guarantee_ScoresNonNegative", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Opponent tracking is symmetric across all participants (FIDE Rule 2 foundation)", "lemmaName": "Guarantee_OpponentsSymmetric", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Accepted round pairings contain no rematches between participants (FIDE Rule 2)", "lemmaName": "NoRematchesWhenValid", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Each participant appears at most once in accepted round pairings (FIDE Rule 3)", "lemmaName": "Guarantee_ParticipantAppearsOnce", "file": "../dafny/Domain.dfy" },
+  { "requirement": "A bye is present when and only when the participant count is odd (FIDE Rule 3)", "lemmaName": "ByeIffOddWhenValid", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Accepted bye recipient has not previously received a pairing-allocated bye (FIDE Rule 4)", "lemmaName": "ByeRecipientEligibleWhenValid", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Active round always has structurally valid pairings and valid participant indices", "lemmaName": "Guarantee_ActiveRoundValid", "file": "../dafny/Domain.dfy" },
+  { "requirement": "Color history length equals total games played as white plus black for every participant", "lemmaName": "Guarantee_ColorHistoryConsistency", "file": "../dafny/Domain.dfy" },
+  { "requirement": "When colors are assigned via ChooseColors, the color difference for each participant in the pairing stays within minus 2 to 2 (FIDE Rule 6)", "lemmaName": "ChooseColorsPreservesColorDiff", "file": "../dafny/Domain.dfy" },
+  { "requirement": "When a valid non-repeating color is appended to a participant's color history, the no-three-consecutive-same-color property is preserved (FIDE Rule 7)", "lemmaName": "ColorAlternationPreservesNoThree", "file": "../dafny/Domain.dfy" },
+  { "requirement": "All accepted pairings cover every participant exactly once (bye or paired)", "lemmaName": "Guarantee_FullCoverage", "file": "../dafny/Domain.dfy" }
+]

@@ -1,0 +1,355 @@
+{
+  "domain": "AppCore",
+  "results": [
+    {
+      "requirement": "Participant count is between 2 and 19 when tournament is active or finished",
+      "lemmaName": "Guarantee_ParticipantCount",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_ParticipantCount(m: Model)\n    requires Inv(m)\n    ensures m.phase != Setup ==> 2 <= |m.participants| <= 19\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_ParticipantCount",
+        "naturalLanguage": "When the model is not in the Setup phase, the number of participants is between 2 and 19 (inclusive).",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "If m.phase ≠ Setup, then 2 ≤ |m.participants| ≤ 19.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 0,
+        "lemmaName": "Guarantee_ParticipantCount",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "Requirement says 'active or finished'; lemma uses 'phase != Setup'. Assuming the only phases are Setup, Active, and Finished, these are equivalent. The count bounds [2, 19] are preserved exactly."
+      },
+      "index": 0,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Total rounds is at least 1 when tournament is active or finished",
+      "lemmaName": "Guarantee_TotalRoundsMin",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_TotalRoundsMin(m: Model)\n    requires Inv(m)\n    ensures m.phase != Setup ==> m.totalRounds >= 1\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_TotalRoundsMin",
+        "naturalLanguage": "When the model is not in the Setup phase, the total number of rounds is at least 1.",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "If m.phase ≠ Setup, then m.totalRounds ≥ 1.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 1,
+        "lemmaName": "Guarantee_TotalRoundsMin",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "Same phase encoding as req 0. 'phase != Setup' is equivalent to 'active or finished'. The bound (totalRounds >= 1) matches the requirement exactly."
+      },
+      "index": 1,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Current round count never exceeds total rounds",
+      "lemmaName": "Guarantee_CurrentRoundBound",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_CurrentRoundBound(m: Model)\n    requires Inv(m)\n    ensures CurrentRound(m) <= m.totalRounds\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_CurrentRoundBound",
+        "naturalLanguage": "The current round of the tournament never exceeds the total number of rounds.",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "CurrentRound(m) ≤ m.totalRounds.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 2,
+        "lemmaName": "Guarantee_CurrentRoundBound",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The postcondition CurrentRound(m) <= m.totalRounds holds unconditionally for all invariant states, matching 'never exceeds' in the requirement."
+      },
+      "index": 2,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Participants have non-negative scores at all times",
+      "lemmaName": "Guarantee_ScoresNonNegative",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_ScoresNonNegative(m: Model)\n    requires Inv(m)\n    ensures forall i :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_ScoresNonNegative",
+        "naturalLanguage": "All participant scores (represented as twice their actual score) are non-negative.",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "For all participant indices i in the model, m.participants[i].score2x ≥ 0.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 3,
+        "lemmaName": "Guarantee_ScoresNonNegative",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "score2x >= 0 for all participants correctly encodes non-negative scores. The doubled representation is an implementation detail; the semantic meaning is preserved."
+      },
+      "index": 3,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Opponent tracking is symmetric across all participants (FIDE Rule 2 foundation)",
+      "lemmaName": "Guarantee_OpponentsSymmetric",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_OpponentsSymmetric(m: Model)\n    requires Inv(m)\n    ensures OpponentsSymmetric(m.participants)\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_OpponentsSymmetric",
+        "naturalLanguage": "The opponent relationships among participants are symmetric (if participant A played participant B, then B played A).",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "OpponentsSymmetric(m.participants) holds.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "moderate",
+        "confidence": 0.9
+      },
+      "comparison": {
+        "requirementIndex": 4,
+        "lemmaName": "Guarantee_OpponentsSymmetric",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The lemma delegates to OpponentsSymmetric(m.participants) for all invariant states. The back-translation correctly explains this as symmetry of opponent tracking."
+      },
+      "index": 4,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Accepted round pairings contain no rematches between participants (FIDE Rule 2)",
+      "lemmaName": "NoRematchesWhenValid",
+      "status": "confirmed",
+      "dafnyCode": "lemma NoRematchesWhenValid(m: Model, pairings: seq<Pairing>, bye: Option<nat>)\n    requires ValidPairingsForModel(m, pairings, bye)\n    ensures NoRematchPairings(m.participants, pairings)\n  {}",
+      "informalization": {
+        "lemmaName": "NoRematchesWhenValid",
+        "naturalLanguage": "When pairings and a bye are valid for a model, those pairings contain no rematches (no two participants are paired more than once).",
+        "preconditions": "The pairings and bye form valid pairings for the model (ValidPairingsForModel(m, pairings, bye)).",
+        "postcondition": "NoRematchPairings(m.participants, pairings) is true.",
+        "scope": "A single state with specific pairings.",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 5,
+        "lemmaName": "NoRematchesWhenValid",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The lemma proves NoRematchPairings(m.participants, pairings) whenever ValidPairingsForModel holds, directly capturing the 'no rematches in accepted pairings' requirement."
+      },
+      "index": 5,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Each participant appears at most once in accepted round pairings (FIDE Rule 3)",
+      "lemmaName": "Guarantee_ParticipantAppearsOnce",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_ParticipantAppearsOnce(m: Model, pairings: seq<Pairing>, bye: Option<nat>)\n    requires ValidPairingsForModel(m, pairings, bye)\n    ensures forall i, j :: 0 <= i < j < |pairings| ==>\n      pairings[i].whiteIdx != pairings[j].whiteIdx &&\n      pairings[i].whiteIdx != pairings[j].blackIdx &&\n      pairings[i].blackIdx != pairings[j].whiteIdx &&\n      pairings[i].blackIdx != pairings[j].blackIdx\n  {\n    PairingsDistinctWhenValid(m, pairings, bye);\n  }",
+      "informalization": {
+        "lemmaName": "Guarantee_ParticipantAppearsOnce",
+        "naturalLanguage": "In valid pairings, every participant appears in at most one pairing, either as white or black.",
+        "preconditions": "The pairings and bye form valid pairings for the model (ValidPairingsForModel(m, pairings, bye)).",
+        "postcondition": "For all distinct pairing indices i and j, the four participants in those pairings (white and black from each) are all different.",
+        "scope": "A single state with specific pairings.",
+        "strength": "strong",
+        "confidence": 0.98
+      },
+      "comparison": {
+        "requirementIndex": 6,
+        "lemmaName": "Guarantee_ParticipantAppearsOnce",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The postcondition explicitly states that for all distinct pairing indices i < j, the four participant slots (white/black in each) are all different, ensuring each participant appears at most once."
+      },
+      "index": 6,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "A bye is present when and only when the participant count is odd (FIDE Rule 3)",
+      "lemmaName": "ByeIffOddWhenValid",
+      "status": "confirmed",
+      "dafnyCode": "lemma ByeIffOddWhenValid(m: Model, pairings: seq<Pairing>, bye: Option<nat>)\n    requires ValidPairingsForModel(m, pairings, bye)\n    ensures bye.Some? <==> |m.participants| % 2 == 1\n  {}",
+      "informalization": {
+        "lemmaName": "ByeIffOddWhenValid",
+        "naturalLanguage": "In valid pairings, a bye is assigned if and only if the number of participants is odd.",
+        "preconditions": "The pairings and bye form valid pairings for the model (ValidPairingsForModel(m, pairings, bye)).",
+        "postcondition": "bye.Some? ⟺ (|m.participants| % 2 == 1).",
+        "scope": "A single state with specific pairings.",
+        "strength": "strong",
+        "confidence": 0.98
+      },
+      "comparison": {
+        "requirementIndex": 7,
+        "lemmaName": "ByeIffOddWhenValid",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The biconditional bye.Some? <==> |m.participants| % 2 == 1 exactly captures 'bye present when and only when participant count is odd'."
+      },
+      "index": 7,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Accepted bye recipient has not previously received a pairing-allocated bye (FIDE Rule 4)",
+      "lemmaName": "ByeRecipientEligibleWhenValid",
+      "status": "confirmed",
+      "dafnyCode": "lemma ByeRecipientEligibleWhenValid(m: Model, pairings: seq<Pairing>, bye: Option<nat>)\n    requires ValidPairingsForModel(m, pairings, bye)\n    requires bye.Some?\n    ensures !m.participants[bye.value].byeReceived\n  {}",
+      "informalization": {
+        "lemmaName": "ByeRecipientEligibleWhenValid",
+        "naturalLanguage": "When a bye is assigned in valid pairings, the recipient has not previously received a bye.",
+        "preconditions": "The pairings and bye form valid pairings for the model, and a bye exists (bye.Some?).",
+        "postcondition": "The participant at index bye.value has not received a bye before: !m.participants[bye.value].byeReceived.",
+        "scope": "A single state with specific pairings where a bye is present.",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 8,
+        "lemmaName": "ByeRecipientEligibleWhenValid",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "!m.participants[bye.value].byeReceived directly encodes that the bye recipient has not previously received a bye. The precondition bye.Some? correctly scopes this to cases where a bye is assigned."
+      },
+      "index": 8,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Active round always has structurally valid pairings and valid participant indices",
+      "lemmaName": "Guarantee_ActiveRoundValid",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_ActiveRoundValid(m: Model)\n    requires Inv(m)\n    ensures ActiveRoundValid(m)\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_ActiveRoundValid",
+        "naturalLanguage": "The active round of the model satisfies validity constraints.",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "ActiveRoundValid(m) is true.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "weak",
+        "confidence": 0.85
+      },
+      "comparison": {
+        "requirementIndex": 9,
+        "lemmaName": "Guarantee_ActiveRoundValid",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The lemma proves ActiveRoundValid(m) for all invariant states. The predicate encapsulates both structural validity of pairings and valid participant indices per the requirement. Delegating to a named predicate is standard in this codebase and not a weakening."
+      },
+      "index": 9,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "Color history length equals total games played as white plus black for every participant",
+      "lemmaName": "Guarantee_ColorHistoryConsistency",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_ColorHistoryConsistency(m: Model)\n    requires Inv(m)\n    ensures forall i :: 0 <= i < |m.participants| ==>\n      |m.participants[i].colorHistory| == m.participants[i].whiteCount + m.participants[i].blackCount\n  {}",
+      "informalization": {
+        "lemmaName": "Guarantee_ColorHistoryConsistency",
+        "naturalLanguage": "For each participant, the length of their color play history equals the sum of their white and black play counts.",
+        "preconditions": "The model satisfies the invariant Inv(m).",
+        "postcondition": "For all participant indices i, |m.participants[i].colorHistory| == m.participants[i].whiteCount + m.participants[i].blackCount.",
+        "scope": "All reachable states (states satisfying the invariant).",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 10,
+        "lemmaName": "Guarantee_ColorHistoryConsistency",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The postcondition |colorHistory| == whiteCount + blackCount for all participants exactly matches the requirement's statement about color history length equaling total games played."
+      },
+      "index": 10,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "When colors are assigned via ChooseColors, the color difference for each participant in the pairing stays within minus 2 to 2 (FIDE Rule 6)",
+      "lemmaName": "ChooseColorsPreservesColorDiff",
+      "status": "confirmed",
+      "dafnyCode": "lemma ChooseColorsPreservesColorDiff(p1: Participant, p2: Participant, p1idx: nat, p2idx: nat)\n    requires p1idx != p2idx\n    requires -2 <= ColorDiff(p1) <= 2\n    requires -2 <= ColorDiff(p2) <= 2\n    requires !(MustPlayBlack(p1) && MustPlayBlack(p2))\n    requires !(MustPlayWhite(p1) && MustPlayWhite(p2))\n    requires !(MustPlayBlack(p1) && MustPlayWhite(p1))\n    requires !(MustPlayBlack(p2) && MustPlayWhite(p2))\n    ensures\n      var pair := ChooseColors(p1idx, p2idx, p1, p2);\n      var c1 := if pair.whiteIdx == p1idx then White else Black;\n      var c2 := if pair.whiteIdx == p2idx then White else Black;\n      -2 <= ColorDiff(p1) + (if c1 == White then 1 else -1) <= 2 &&\n      -2 <= ColorDiff(p2) + (if c2 == White then 1 else -1) <= 2\n  {\n    var pair := ChooseColors(p1idx, p2idx, p1, p2);\n    // Explicitly compute c1 and c2 using the same expressions as the ensures clause\n    var c1 := if pair.whiteIdx == p1idx then White else Black;\n    var c2 := if pair.whiteIdx == p2idx then White else Black;\n\n    if MustPlayWhite(p1) || MustPlayBlack(p2) {\n      // ChooseColors returns Pairing(p1idx, p2idx): p1 is White, p2 is Black\n      assert pair.whiteIdx == p1idx;\n      assert pair.whiteIdx != p2idx;  // because p1idx != p2idx\n      assert c1 == White;\n      assert c2 == Black;\n      // p1 White: !MustPlayBlack(p1) => ColorDiff(p1) != 2 => ColorDiff(p1) + 1 <= 2\n      assert !MustPlayBlack(p1);\n      assert ColorDiff(p1) != 2;\n      assert ColorDiff(p1) + 1 <= 2;\n      // p2 Black: !MustPlayWhite(p2) => ColorDiff(p2) != -2 => ColorDiff(p2) - 1 >= -2\n      assert !MustPlayWhite(p2);\n      assert ColorDiff(p2) != -2;\n      assert ColorDiff(p2) - 1 >= -2;\n    } else if MustPlayBlack(p1) || MustPlayWhite(p2) {\n      // ChooseColors returns Pairing(p2idx, p1idx): p2 is White, p1 is Black\n      assert pair.whiteIdx == p2idx;\n      assert pair.whiteIdx != p1idx;  // because p1idx != p2idx\n      assert c1 == Black;\n      assert c2 == White;\n      // p1 Black: !MustPlayWhite(p1) from branch 1 false => ColorDiff(p1) != -2 => ColorDiff(p1) - 1 >= -2\n      assert !MustPlayWhite(p1);\n      assert ColorDiff(p1) != -2;\n      assert ColorDiff(p1) - 1 >= -2;\n      // p2 White: !MustPlayBlack(p2) from branch 1 false => ColorDiff(p2) != 2 => ColorDiff(p2) + 1 <= 2\n      assert !MustPlayBlack(p2);\n      assert ColorDiff(p2) != 2;\n      assert ColorDiff(p2) + 1 <= 2;\n    } else {\n      // No hard constraints; both players have |ColorDiff| < 2\n      assert !MustPlayWhite(p1) && !MustPlayBlack(p1);\n      assert !MustPlayWhite(p2) && !MustPlayBlack(p2);\n      assert ColorDiff(p1) != 2 && ColorDiff(p1) != -2;\n      assert ColorDiff(p2) != 2 && ColorDiff(p2) != -2;\n      if PreferredColor(p1) == White {\n        // ChooseColors returns Pairing(p1idx, p2idx)\n        assert pair.whiteIdx == p1idx;\n        assert pair.whiteIdx != p2idx;\n        assert c1 == White;\n        assert c2 == Black;\n        assert ColorDiff(p1) + 1 <= 2;\n        assert ColorDiff(p2) - 1 >= -2;\n      } else {\n        // ChooseColors returns Pairing(p2idx, p1idx)\n        assert pair.whiteIdx == p2idx;\n        assert pair.whiteIdx != p1idx;\n        assert c1 == Black;\n        assert c2 == White;\n        assert ColorDiff(p1) - 1 >= -2;\n        assert ColorDiff(p2) + 1 <= 2;\n      }\n    }\n  }",
+      "informalization": {
+        "lemmaName": "ChooseColorsPreservesColorDiff",
+        "naturalLanguage": "When assigning colors to two participants via ChooseColors, the resulting color difference for each participant (adjusted by their assigned color) remains within the acceptable range of [-2, 2].",
+        "preconditions": "Two different participant indices p1idx and p2idx; both participants have color difference in [-2, 2]; no conflicting hard constraints on both players (not both must play black, not both must play white, no player forced to play both colors).",
+        "postcondition": "After ChooseColors assigns one player white and one black, both players' adjusted color differences remain in [-2, 2]: -2 ≤ ColorDiff(p1) ± 1 ≤ 2 and -2 ≤ ColorDiff(p2) ± 1 ≤ 2.",
+        "scope": "A single color-assignment operation.",
+        "strength": "strong",
+        "confidence": 0.93
+      },
+      "comparison": {
+        "requirementIndex": 11,
+        "lemmaName": "ChooseColorsPreservesColorDiff",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The lemma proves that ChooseColors preserves ColorDiff within [-2, 2] for both participants. Preconditions that both start within [-2, 2] and have no conflicting hard constraints are legitimate guard conditions for a preservation lemma. The postcondition captures the adjusted ColorDiff (after adding ±1 for the assigned color) remaining in [-2, 2]."
+      },
+      "index": 11,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "When a valid non-repeating color is appended to a participant's color history, the no-three-consecutive-same-color property is preserved (FIDE Rule 7)",
+      "lemmaName": "ColorAlternationPreservesNoThree",
+      "status": "confirmed",
+      "dafnyCode": "lemma ColorAlternationPreservesNoThree(history: seq<Color>, c: Color)\n    requires NoThreeConsecutive(history)\n    requires |history| < 2 || !(history[|history|-1] == c && history[|history|-2] == c)\n    ensures NoThreeConsecutive(history + [c])\n  {\n    var newHistory := history + [c];\n    forall i | 2 <= i < |newHistory|\n      ensures !(newHistory[i] == newHistory[i-1] && newHistory[i-1] == newHistory[i-2])\n    {\n      if i < |history| {\n        assert newHistory[i] == history[i];\n        assert newHistory[i-1] == history[i-1];\n        assert newHistory[i-2] == history[i-2];\n      } else {\n        // i == |history| (the new element)\n        assert newHistory[i] == c;\n        assert newHistory[i-1] == history[|history|-1];\n        if |history| >= 2 {\n          assert newHistory[i-2] == history[|history|-2];\n        }\n      }\n    }\n  }",
+      "informalization": {
+        "lemmaName": "ColorAlternationPreservesNoThree",
+        "naturalLanguage": "Appending a color to a history that has no three consecutive identical colors preserves the no-three-consecutive property, provided the appended color does not create three in a row.",
+        "preconditions": "The history has no three consecutive identical colors; either the history has fewer than 2 elements, or the last two elements are not both equal to the color being appended.",
+        "postcondition": "After appending color c to history, there are still no three consecutive identical colors in the resulting sequence.",
+        "scope": "A single sequence-append operation.",
+        "strength": "moderate",
+        "confidence": 0.95
+      },
+      "comparison": {
+        "requirementIndex": 12,
+        "lemmaName": "ColorAlternationPreservesNoThree",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The precondition correctly encodes 'valid non-repeating color' (not creating three in a row), and the postcondition proves NoThreeConsecutive is preserved on appending. Fully matches the requirement."
+      },
+      "index": 12,
+      "expected": "confirmed"
+    },
+    {
+      "requirement": "All accepted pairings cover every participant exactly once (bye or paired)",
+      "lemmaName": "Guarantee_FullCoverage",
+      "status": "confirmed",
+      "dafnyCode": "lemma Guarantee_FullCoverage(m: Model, pairings: seq<Pairing>, bye: Option<nat>)\n    requires ValidPairingsForModel(m, pairings, bye)\n    ensures 2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants|\n    ensures forall i, j :: 0 <= i < j < |pairings| ==>\n      pairings[i].whiteIdx != pairings[j].whiteIdx &&\n      pairings[i].whiteIdx != pairings[j].blackIdx &&\n      pairings[i].blackIdx != pairings[j].whiteIdx &&\n      pairings[i].blackIdx != pairings[j].blackIdx\n    ensures bye.Some? ==>\n      bye.value < |m.participants| &&\n      (forall p :: p in pairings ==> p.whiteIdx != bye.value && p.blackIdx != bye.value)\n  {\n    FullCoverageWhenValid(m, pairings, bye);\n    PairingsDistinctWhenValid(m, pairings, bye);\n  }",
+      "informalization": {
+        "lemmaName": "Guarantee_FullCoverage",
+        "naturalLanguage": "Valid pairings fully cover all participants: the number of participants equals twice the number of pairings plus one if a bye exists; all pairings are distinct; and if a bye exists, it is a valid participant index that does not appear in any pairing.",
+        "preconditions": "The pairings and bye form valid pairings for the model (ValidPairingsForModel(m, pairings, bye)).",
+        "postcondition": "Three conditions hold: (1) 2*|pairings| + (1 if bye exists else 0) == |m.participants|; (2) all pairings are distinct (no participant appears in multiple pairings); (3) if a bye exists, bye.value is a valid index and does not appear in any pairing.",
+        "scope": "A single state with specific pairings.",
+        "strength": "strong",
+        "confidence": 0.96
+      },
+      "comparison": {
+        "requirementIndex": 13,
+        "lemmaName": "Guarantee_FullCoverage",
+        "match": true,
+        "discrepancy": "",
+        "weakeningType": "none",
+        "explanation": "The three ensures clauses together prove full coverage: (1) participant count equals 2*pairings + bye, (2) all pairings are distinct (no participant in two pairings), (3) if a bye exists it is a valid index not appearing in any pairing. Together these guarantee every participant is covered exactly once."
+      },
+      "index": 13,
+      "expected": "confirmed"
+    }
+  ]
+}

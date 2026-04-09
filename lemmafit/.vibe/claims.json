@@ -342,6 +342,107 @@
       "line": 976
     },
     {
+      "name": "Guarantee_ParticipantCount",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "m.phase != Setup ==> 2 <= |m.participants| <= 19"
+      ],
+      "line": 1003
+    },
+    {
+      "name": "Guarantee_TotalRoundsMin",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "m.phase != Setup ==> m.totalRounds >= 1"
+      ],
+      "line": 1009
+    },
+    {
+      "name": "Guarantee_CurrentRoundBound",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "CurrentRound(m) <= m.totalRounds"
+      ],
+      "line": 1015
+    },
+    {
+      "name": "Guarantee_ScoresNonNegative",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0"
+      ],
+      "line": 1021
+    },
+    {
+      "name": "Guarantee_OpponentsSymmetric",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "OpponentsSymmetric(m.participants)"
+      ],
+      "line": 1027
+    },
+    {
+      "name": "Guarantee_ActiveRoundValid",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "ActiveRoundValid(m)"
+      ],
+      "line": 1033
+    },
+    {
+      "name": "Guarantee_ColorHistoryConsistency",
+      "module": "SwissDomain",
+      "requires": [
+        "Inv(m)"
+      ],
+      "ensures": [
+        "forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> |m.participants[i].colorHistory| == m.participants[i].whiteCount + m.participants[i].blackCount"
+      ],
+      "line": 1039
+    },
+    {
+      "name": "Guarantee_ParticipantAppearsOnce",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)"
+      ],
+      "ensures": [
+        "forall i: int, j: int {:trigger pairings[j], pairings[i]} :: (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].blackIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].blackIdx)"
+      ],
+      "line": 1047
+    },
+    {
+      "name": "Guarantee_FullCoverage",
+      "module": "SwissDomain",
+      "requires": [
+        "ValidPairingsForModel(m, pairings, bye)"
+      ],
+      "ensures": [
+        "2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants|",
+        "forall i: int, j: int {:trigger pairings[j], pairings[i]} :: (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].blackIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].whiteIdx) && (0 <= i < j < |pairings| ==> pairings[i].blackIdx != pairings[j].blackIdx)",
+        "bye.Some? ==> bye.value < |m.participants| && forall p: Pairing {:trigger p.blackIdx} {:trigger p.whiteIdx} {:trigger p in pairings} :: (p in pairings ==> p.whiteIdx != bye.value) && (p in pairings ==> p.blackIdx != bye.value)"
+      ],
+      "line": 1060
+    },
+    {
       "name": "InitSatisfiesInv",
       "module": "Kernel.D.Abs",
       "requires": [],
@@ -932,7 +1033,7 @@
         "K.HistInv(h)"
       ],
       "ensures": [],
-      "line": 1011
+      "line": 1087
     }
   ]
 }

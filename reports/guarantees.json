@@ -1,0 +1,202 @@
+{
+  "generatedAt": "2026-04-09T00:00:00.000Z",
+  "guarantees": [
+    {
+      "specId": "spec-001",
+      "requirement": "Participant count is between 2 and 19 when tournament is active or finished",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:1",
+          "type": "invariant-conjunct",
+          "expression": "m.phase != Setup ==> m.totalRounds >= 1 && 2 <= |m.participants| <= 19",
+          "lemmaName": "Guarantee_ParticipantCount"
+        }
+      ],
+      "reasoning": "Inv conjunct 1 implies 2 <= |m.participants| <= 19 whenever phase != Setup. Guarantee_ParticipantCount extracts this from Inv."
+    },
+    {
+      "specId": "spec-002",
+      "requirement": "Total rounds is at least 1 when tournament is active or finished",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:1",
+          "type": "invariant-conjunct",
+          "expression": "m.phase != Setup ==> m.totalRounds >= 1 && 2 <= |m.participants| <= 19",
+          "lemmaName": "Guarantee_TotalRoundsMin"
+        }
+      ],
+      "reasoning": "Inv conjunct 1 implies totalRounds >= 1 whenever phase != Setup. Guarantee_TotalRoundsMin extracts this from Inv."
+    },
+    {
+      "specId": "spec-003",
+      "requirement": "Current round count never exceeds total rounds",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:5",
+          "type": "invariant-conjunct",
+          "expression": "CurrentRound(m) <= m.totalRounds",
+          "lemmaName": "Guarantee_CurrentRoundBound"
+        }
+      ],
+      "reasoning": "Inv conjunct 5 directly states CurrentRound(m) <= m.totalRounds. Guarantee_CurrentRoundBound extracts this."
+    },
+    {
+      "specId": "spec-004",
+      "requirement": "Participants have non-negative scores at all times",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:0",
+          "type": "invariant-conjunct",
+          "expression": "forall i: int {:trigger m.participants[i]} :: 0 <= i < |m.participants| ==> m.participants[i].score2x >= 0",
+          "lemmaName": "Guarantee_ScoresNonNegative"
+        }
+      ],
+      "reasoning": "Inv conjunct 0 states all participant scores are >= 0. Guarantee_ScoresNonNegative extracts this from Inv."
+    },
+    {
+      "specId": "spec-005",
+      "requirement": "Opponent tracking is symmetric across all participants (FIDE Rule 2 foundation)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:6",
+          "type": "invariant-conjunct",
+          "expression": "OpponentsSymmetric(m.participants)",
+          "lemmaName": "Guarantee_OpponentsSymmetric"
+        }
+      ],
+      "reasoning": "Inv conjunct 6 includes OpponentsSymmetric, which means if i has j as opponent then j has i as opponent. Guarantee_OpponentsSymmetric extracts this."
+    },
+    {
+      "specId": "spec-006",
+      "requirement": "Accepted round pairings contain no rematches between participants (FIDE Rule 2)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.NoRematchesWhenValid",
+          "type": "lemma-ensures",
+          "expression": "NoRematchPairings(m.participants, pairings)",
+          "lemmaName": "NoRematchesWhenValid"
+        }
+      ],
+      "reasoning": "NoRematchesWhenValid requires ValidPairingsForModel and ensures NoRematchPairings, directly proving that valid pairings contain no rematches."
+    },
+    {
+      "specId": "spec-007",
+      "requirement": "Each participant appears at most once in accepted round pairings (FIDE Rule 3)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.Guarantee_ParticipantAppearsOnce",
+          "type": "lemma-ensures",
+          "expression": "forall i, j :: 0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].whiteIdx && pairings[i].whiteIdx != pairings[j].blackIdx && pairings[i].blackIdx != pairings[j].whiteIdx && pairings[i].blackIdx != pairings[j].blackIdx",
+          "lemmaName": "Guarantee_ParticipantAppearsOnce"
+        }
+      ],
+      "reasoning": "Guarantee_ParticipantAppearsOnce makes participant-level uniqueness explicit: no participant index can appear in more than one pairing slot across the entire round."
+    },
+    {
+      "specId": "spec-008",
+      "requirement": "A bye is present when and only when the participant count is odd (FIDE Rule 3)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.ByeIffOddWhenValid",
+          "type": "lemma-ensures",
+          "expression": "bye.Some? <==> |m.participants| % 2 == 1",
+          "lemmaName": "ByeIffOddWhenValid"
+        }
+      ],
+      "reasoning": "ByeIffOddWhenValid requires ValidPairingsForModel and ensures the biconditional: bye exists iff participant count is odd."
+    },
+    {
+      "specId": "spec-009",
+      "requirement": "Accepted bye recipient has not previously received a pairing-allocated bye (FIDE Rule 4)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.ByeRecipientEligibleWhenValid",
+          "type": "lemma-ensures",
+          "expression": "!m.participants[bye.value].byeReceived",
+          "lemmaName": "ByeRecipientEligibleWhenValid"
+        }
+      ],
+      "reasoning": "ByeRecipientEligibleWhenValid requires ValidPairingsForModel and bye.Some?, then ensures the bye recipient has not previously received a bye."
+    },
+    {
+      "specId": "spec-010",
+      "requirement": "Active round always has structurally valid pairings and valid participant indices",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:9",
+          "type": "invariant-conjunct",
+          "expression": "ActiveRoundValid(m)",
+          "lemmaName": "Guarantee_ActiveRoundValid"
+        }
+      ],
+      "reasoning": "Inv conjunct 9 includes ActiveRoundValid(m), ensuring the active round has valid pairings, distinct indices, and valid bye. Guarantee_ActiveRoundValid extracts this."
+    },
+    {
+      "specId": "spec-011",
+      "requirement": "Color history length equals total games played as white plus black for every participant",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "inv:SwissDomain.Inv:8",
+          "type": "invariant-conjunct",
+          "expression": "ColorHistoryConsistency(m.participants)",
+          "lemmaName": "Guarantee_ColorHistoryConsistency"
+        }
+      ],
+      "reasoning": "Inv conjunct 8 includes ColorHistoryConsistency, which expands to |colorHistory| == whiteCount + blackCount for every participant. Guarantee_ColorHistoryConsistency extracts this."
+    },
+    {
+      "specId": "spec-012",
+      "requirement": "Color difference for every participant stays within minus 2 to 2 (FIDE Rule 6)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.ChooseColorsPreservesColorDiff",
+          "type": "lemma-ensures",
+          "expression": "-2 <= ColorDiff(p1) + (if c1 == White then 1 else -1) <= 2 && -2 <= ColorDiff(p2) + (if c2 == White then 1 else -1) <= 2",
+          "lemmaName": "ChooseColorsPreservesColorDiff"
+        }
+      ],
+      "reasoning": "ChooseColorsPreservesColorDiff proves that after color assignment, both participants' color differences remain in [-2, 2], provided no conflicting hard constraints exist. Scope: per-operation postcondition for each pairing's color choice."
+    },
+    {
+      "specId": "spec-013",
+      "requirement": "No participant receives the same color three times consecutively (FIDE Rule 7)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.ColorAlternationPreservesNoThree",
+          "type": "lemma-ensures",
+          "expression": "NoThreeConsecutive(history + [c])",
+          "lemmaName": "ColorAlternationPreservesNoThree"
+        }
+      ],
+      "reasoning": "ColorAlternationPreservesNoThree proves that if history has no three consecutive same colors and the new color does not form a third consecutive, then the extended history still satisfies NoThreeConsecutive. Scope: per-operation postcondition for each color assignment."
+    },
+    {
+      "specId": "spec-014",
+      "requirement": "All accepted pairings cover every participant exactly once (bye or paired)",
+      "status": "proven",
+      "coveredBy": [
+        {
+          "claimId": "lemma:SwissDomain.Guarantee_FullCoverage",
+          "type": "lemma-ensures",
+          "expression": "2 * |pairings| + (if bye.Some? then 1 else 0) == |m.participants| && (forall i, j :: 0 <= i < j < |pairings| ==> pairings[i].whiteIdx != pairings[j].whiteIdx && ...) && (bye.Some? ==> bye.value < |m.participants| && (forall p :: p in pairings ==> p.whiteIdx != bye.value && p.blackIdx != bye.value))",
+          "lemmaName": "Guarantee_FullCoverage"
+        }
+      ],
+      "reasoning": "Guarantee_FullCoverage combines count equation, participant-level distinctness across all pairings, and bye exclusion — together proving every participant is covered exactly once."
+    }
+  ],
+  "gaps": []
+}
